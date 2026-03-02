@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, jsonify
+from flask import Flask, request, render_template_string, jsonify, send_from_directory
 import os
 from datetime import datetime
 
@@ -85,7 +85,11 @@ def upload():
 
 @app.route('/uploads/<path:filename>')
 def files(filename):
-    return app.send_from_directory(UPLOAD_FOLDER, filename)
+    try:
+        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error serving file {filename}: {e}")   # This prints to Render logs!
+        return f"Failed to serve file: {e}", 500
 
 @app.route('/command/<device>', methods=['GET'])
 def command(device):
@@ -95,16 +99,7 @@ def command(device):
         return jsonify({'cmd': command[0], 'arg': command[1]})
     else:
         return jsonify({'cmd': 'noop', 'arg': ''})
-from flask import send_from_directory, abort
 
-@app.route('/uploads/<path:filename>')
-def files(filename):
-    try:
-        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
-    except Exception as e:
-        print(f"Error serving file {filename}: {e}")   # This prints to Render logs!
-        return f"Failed to serve file: {e}", 500
-    
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
