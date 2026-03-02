@@ -95,7 +95,11 @@ def command(device):
         return jsonify({'cmd': command[0], 'arg': command[1]})
     else:
         return jsonify({'cmd': 'noop', 'arg': ''})
-
+@app.route('/list_uploads')
+def list_uploads():
+    files = os.listdir(UPLOAD_FOLDER)
+    return "<h2>Files in uploads/:</h2>" + "<br>".join(files)
+    
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
