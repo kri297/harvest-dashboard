@@ -29,6 +29,7 @@ def dashboard():
 
     return render_template_string('''
         <h2>Live Harvest Dashboard</h2>
+        <meta http-equiv="refresh" content="10">
         <form method="post" action="/clear" style="margin-bottom:20px;">
             <button type="submit" style="background:#f22;color:white;padding:6px 16px;border:none;border-radius:4px;">Reset Dashboard (Logs & Files)</button>
         </form>
