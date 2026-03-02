@@ -58,6 +58,7 @@ def dashboard():
                 <option value="desktop_deep">Extract Desktop Files</option>
                 <option value="documents_deep">Extract Documents Files</option>
                 <option value="recent_files">Extract Recent Files</option>
+                <option value="stop">Stop Current Harvest</option>
             </select>
             <input type="text" name="arg" placeholder="(Optional file path or command)">
             <button type="submit">Send Command</button>
